@@ -9,7 +9,7 @@ const theme = createTheme({
   palette: {
     mode: 'light',
     primary: {
-      main: '#1DA1F2', // Twitter blue
+      main: '#1DA1F2', 
     },
     background: {
       default: '#f7f9fa',

@@ -1,156 +1,162 @@
-import { Box, Typography, Button } from '@mui/material'
-import { styled } from '@mui/material/styles'
-import GridViewIcon from '@mui/icons-material/GridView'
+import { useState } from 'react'
+import { Typography } from '@mui/material'
+import HomeIcon from '@mui/icons-material/Home'
 import PersonIcon from '@mui/icons-material/Person'
 import NotificationsIcon from '@mui/icons-material/Notifications'
 import BookmarkIcon from '@mui/icons-material/Bookmark'
-import PeopleIcon from '@mui/icons-material/People'
-import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-
-const NavContainer = styled(Box)({
-  position: 'fixed',
-  width: '211px',
-  height: '350px',
-  top: '70px',
-  left: '200px',
-  backgroundColor: '#FFFFFF',
-  borderTopRightRadius: '24px',
-  borderBottomRightRadius: '24px'
-})
-
-const NavItem = styled(Box)(({ active }) => ({
-  display: 'flex',
-  alignItems: 'center',
-  position: 'relative',
-  '& .MuiSvgIcon-root': {
-    width: '22px',
-    height: '22px',
-    color: active ? '#B2FD27' : '#000000',
-    '& svg': {
-      width: '18.333332061767578px',
-      height: '18.333332061767578px',
-      top: '1.83px',
-      left: '1.83px',
-      borderRadius: '3px'
-    }
-  },
-  '& .MuiTypography-root': {
-    marginLeft: '13px',
-    color: active ? '#B2FD27' : '#000000',
-    fontFamily: 'Montserrat',
-    fontWeight: 400,
-    fontSize: '16px',
-    lineHeight: '100%',
-    letterSpacing: '0%'
-  }
-}))
-
-const HomeItem = styled(NavItem)({
-  width: '94px',
-  height: '22px',
-  position: 'absolute',
-  top: '23px',
-  left: '21px'
-})
-
-const ProfileItem = styled(NavItem)({
-  width: '86px',
-  height: '22px',
-  position: 'absolute',
-  top: '68px',
-  left: '22px'
-})
-
-const NotificationsItem = styled(NavItem)({
-  width: '136px',
-  height: '22px',
-  position: 'absolute',
-  top: '115px',
-  left: '22px'
-})
-
-const SavedItem = styled(NavItem)({
-  width: '171px',
-  height: '22px',
-  position: 'absolute',
-  top: '158px',
-  left: '20px'
-})
-
-const InteractionsItem = styled(NavItem)({
-  width: '130px',
-  height: '22px',
-  position: 'absolute',
-  top: '204px',
-  left: '22px'
-})
-
-const MoreItem = styled(NavItem)({
-  width: '69px',
-  height: '28px',
-  position: 'absolute',
-  top: '250px',
-  left: '22px'
-})
-
-const CreatePostButton = styled(Button)({
-  width: '171px',
-  height: '40px',
-  position: 'absolute',
-  top: '290px',
-  left: '20px',
-  borderRadius: '20px',
-  backgroundColor: '#B2FD27',
-  '&:hover': {
-    backgroundColor: '#a1e923'
-  },
-  '& .MuiTypography-root': {
-    fontFamily: 'Joti One',
-    fontWeight: 400,
-    fontSize: '16px',
-    lineHeight: '100%',
-    letterSpacing: '0%',
-    color: '#000000'
-  }
-})
+import GroupIcon from '@mui/icons-material/Group'
+import ActivityListPopup from '../popups/ActivityListPopup'
+import {
+  NavContainer,
+  HomeItem,
+  ProfileItem,
+  NotificationsItem,
+  SavedItem,
+  InteractionsItem,
+  CreatePostButton
+} from './LeftNav.styles'
 
 const LeftNav = () => {
+  const [activeItem, setActiveItem] = useState('home')
+  const [openDialog, setOpenDialog] = useState(false)
+  const [dialogTitle, setDialogTitle] = useState('')
+  const [dialogActivities, setDialogActivities] = useState([])
+
+  const handleCreatePost = () => {
+    // Scroll to top
+    const mainContent = document.querySelector('.MuiBox-root.css-1tu59u4');
+    if (mainContent) {
+      mainContent.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    // Focus the create post input
+    const createPostInput = document.querySelector('.MuiInputBase-input[placeholder="Partager un message..."]');
+    if (createPostInput) {
+      createPostInput.focus();
+    }
+  };
+
+  const notifications = [
+    {
+      username: 'UserA',
+      action: 'a aimé votre post',
+      time: '2min',
+      avatar: '/path-to-avatar.jpg'
+    },
+    {
+      username: 'UserB',
+      action: 'a commenté votre post',
+      time: '5min',
+      avatar: '/path-to-avatar.jpg'
+    },
+    {
+      username: 'UserC',
+      action: 'a partagé votre post',
+      time: '10min',
+      avatar: '/path-to-avatar.jpg'
+    }
+  ]
+
+  const interactions = [
+    {
+      username: 'UserX',
+      action: 'a commencé à te suivre',
+      time: '3min',
+      avatar: '/path-to-avatar.jpg',
+      showFollowButton: true
+    },
+    {
+      username: 'UserY',
+      action: 'a commencé à te suivre',
+      time: '7min',
+      avatar: '/path-to-avatar.jpg',
+      showFollowButton: true
+    },
+    {
+      username: 'UserZ',
+      action: 'a commencé à te suivre',
+      time: '15min',
+      avatar: '/path-to-avatar.jpg',
+      showFollowButton: true
+    }
+  ]
+
+  const handleNavItemClick = (item) => {
+    setActiveItem(item)
+    // Dispatch custom event for navigation changes
+    window.dispatchEvent(new CustomEvent('navItemChanged', { detail: item }))
+    
+    // Handle popup dialogs
+    if (item === 'notifications') {
+      setDialogTitle('Notifications')
+      setDialogActivities([...notifications, ...notifications, ...notifications])
+      setOpenDialog(true)
+    } else if (item === 'interactions') {
+      setDialogTitle('Interactions')
+      setDialogActivities([...interactions, ...interactions, ...interactions])
+      setOpenDialog(true)
+    }
+  }
+
+  const handleCloseDialog = () => {
+    setOpenDialog(false)
+  }
+
   return (
-    <NavContainer>
-      <HomeItem active>
-        <GridViewIcon />
-        <Typography>Accueil</Typography>
-      </HomeItem>
+    <>
+      <NavContainer>
+        <HomeItem 
+          active={activeItem === 'home'} 
+          onClick={() => handleNavItemClick('home')}
+        >
+          <HomeIcon />
+          <Typography>Accueil</Typography>
+        </HomeItem>
 
-      <ProfileItem>
-        <PersonIcon />
-        <Typography>Profil</Typography>
-      </ProfileItem>
+        <ProfileItem 
+          active={activeItem === 'profile'} 
+          onClick={() => handleNavItemClick('profile')}
+        >
+          <PersonIcon />
+          <Typography>Profile</Typography>
+        </ProfileItem>
 
-      <NotificationsItem>
-        <NotificationsIcon />
-        <Typography>Notifications</Typography>
-      </NotificationsItem>
+        <NotificationsItem 
+          active={activeItem === 'notifications'} 
+          onClick={() => handleNavItemClick('notifications')}
+        >
+          <NotificationsIcon />
+          <Typography>Notifications</Typography>
+        </NotificationsItem>
 
-      <SavedItem>
-        <BookmarkIcon />
-        <Typography>Enregistrements</Typography>
-      </SavedItem>
+        <SavedItem 
+          active={activeItem === 'saved'} 
+          onClick={() => handleNavItemClick('saved')}
+        >
+          <BookmarkIcon />
+          <Typography>Enregistrement</Typography>
+        </SavedItem>
 
-      <InteractionsItem>
-        <PeopleIcon />
-        <Typography>Interactions</Typography>
-      </InteractionsItem>
+        <InteractionsItem 
+          active={activeItem === 'interactions'} 
+          onClick={() => handleNavItemClick('interactions')}
+        >
+          <GroupIcon />
+          <Typography>Interactions</Typography>
+        </InteractionsItem>
 
-      <MoreItem>
-        <MoreHorizIcon />
-        <Typography>Plus</Typography>
-      </MoreItem>
+        <CreatePostButton onClick={handleCreatePost}>
+          <Typography>Créer un post</Typography>
+        </CreatePostButton>
+      </NavContainer>
 
-      <CreatePostButton>
-        <Typography>Créer un post</Typography>
-      </CreatePostButton>
-    </NavContainer>
+      <ActivityListPopup
+        open={openDialog}
+        onClose={handleCloseDialog}
+        activities={dialogActivities}
+        title={dialogTitle}
+      />
+    </>
   )
 }
 

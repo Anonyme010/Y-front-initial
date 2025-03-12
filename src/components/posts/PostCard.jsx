@@ -1,118 +1,173 @@
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  CardMedia,
-  IconButton,
-  Typography,
-  InputBase,
-  Button,
-} from '@mui/material'
+import { Box, Menu, MenuItem } from '@mui/material'
 import MoreHorizIcon from '@mui/icons-material/MoreHoriz'
-import ThumbUpOutlinedIcon from '@mui/icons-material/ThumbUpOutlined'
-import ChatBubbleOutlineIcon from '@mui/icons-material/ChatBubbleOutline'
-import BookmarkBorderIcon from '@mui/icons-material/BookmarkBorder'
+import ThumbUpIcon from '@mui/icons-material/ThumbUp'
+import CommentIcon from '@mui/icons-material/Comment'
+import BookmarkIcon from '@mui/icons-material/Bookmark'
+import ArrowForwardIosIcon from '@mui/icons-material/ArrowForwardIos'
 import SendIcon from '@mui/icons-material/Send'
+import { useState } from 'react'
+import CommentsPopup from '../popups/CommentsPopup'
+import { comments } from '../items/comments'
+import {
+  PostContainer,
+  HeaderContainer,
+  ProfileAvatar,
+  UserInfoContainer,
+  Username,
+  UserHandle,
+  TimeStamp,
+  MoreButton,
+  ContentSection,
+  MainContent,
+  ContentText,
+  HashtagText,
+  ImageContainer,
+  CommentsSection,
+  CommentsHeader,
+  CommentDivider,
+  CommentItem,
+  CommentAvatar,
+  CommentContent,
+  CommentUsername,
+  CommentText,
+  CommentTime,
+  ShowMoreText,
+  ActionSection,
+  ActionItem,
+  CommentInputSection,
+  CommentInputAvatar,
+  CommentInputWrapper,
+  CommentInput,
+  SendButton
+} from './PostCard.styles'
 
-const PostCard = ({ post }) => {
+const PostCard = () => {
+  const [anchorEl, setAnchorEl] = useState(null);
+  const [commentsOpen, setCommentsOpen] = useState(false);
+  const open = Boolean(anchorEl);
+
+  const handleClick = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+
+  const handleClose = () => {
+    setAnchorEl(null);
+  };
+
+  const handleCommentsOpen = () => {
+    setCommentsOpen(true);
+  };
+
+  const handleCommentsClose = () => {
+    setCommentsOpen(false);
+  };
+
   return (
-    <Card sx={{ mb: 1.5, maxWidth: 600 }}>
-      {/* Post Header */}
-      <Box sx={{ p: 1.5, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
-          <Avatar sx={{ width: 32, height: 32 }} />
-          <Box>
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-              <Typography variant="subtitle2" sx={{ fontSize: '0.875rem' }}>username</Typography>
-              <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-                @username
-              </Typography>
-            </Box>
-            <Typography variant="caption" color="text.secondary" sx={{ fontSize: '0.75rem' }}>
-              il y a 5 minutes
-            </Typography>
+    <PostContainer>
+      <HeaderContainer>
+        <ProfileAvatar src="/path-to-avatar.jpg" />
+        <UserInfoContainer>
+          <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+            <Username>username</Username>
+            <UserHandle>@username</UserHandle>
           </Box>
-        </Box>
-        <IconButton size="small">
-          <MoreHorizIcon fontSize="small" />
-        </IconButton>
-      </Box>
+          <TimeStamp>il y'a 5 minutes</TimeStamp>
+        </UserInfoContainer>
+        <MoreButton
+          onClick={handleClick}
+          aria-controls={open ? 'post-menu' : undefined}
+          aria-haspopup="true"
+          aria-expanded={open ? 'true' : undefined}
+        >
+          <MoreHorizIcon />
+        </MoreButton>
+        <Menu
+          id="post-menu"
+          anchorEl={anchorEl}
+          open={open}
+          onClose={handleClose}
+          onClick={handleClose}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem onClick={handleClose}>Modifier</MenuItem>
+          <MenuItem onClick={handleClose}>Supprimer</MenuItem>
+        </Menu>
+      </HeaderContainer>
 
-      {/* Post Content */}
-      <CardContent sx={{ py: 0.5, px: 1.5 }}>
-        <Typography variant="body2" sx={{ fontSize: '0.875rem' }}>
-          Lorem ipsum dolor sit amet, consectetur adipiscing elit, nullam et semper augue.
-        </Typography>
-      </CardContent>
+      <ContentSection>
+        <MainContent>
+          <ContentText>
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nullam et semper augue.
+          </ContentText>
 
-      {/* Post Image */}
-      <CardMedia
-        component="img"
-        image="https://source.unsplash.com/random"
-        alt="Post image"
-        sx={{ aspectRatio: '16/10', maxHeight: 300 }}
+          <HashtagText>
+            #nature <span>#beauty #voyage</span>
+          </HashtagText>
+
+          <ImageContainer 
+            component="img"
+            src="https://source.unsplash.com/random"
+            alt="Post image"
+          />
+        </MainContent>
+
+        <CommentsSection>
+          <CommentsHeader>Commentaire ({comments.length})</CommentsHeader>
+          <CommentDivider />
+          
+          {comments.slice(0, 3).map((comment) => (
+            <CommentItem key={comment.id}>
+              <CommentAvatar src={comment.avatar} />
+              <CommentContent>
+                <CommentUsername>{comment.username}</CommentUsername>
+                <CommentText>{comment.comment}</CommentText>
+                <CommentTime>{comment.time}</CommentTime>
+              </CommentContent>
+            </CommentItem>
+          ))}
+
+          <ShowMoreText onClick={handleCommentsOpen} sx={{ cursor: 'pointer' }}>
+            voir tout
+          </ShowMoreText>
+        </CommentsSection>
+      </ContentSection>
+
+      <ActionSection>
+        <ActionItem>
+          <ThumbUpIcon />
+          <span>15</span>
+        </ActionItem>
+        <ActionItem>
+          <CommentIcon />
+          <span>3</span>
+        </ActionItem>
+        <ActionItem>
+          <BookmarkIcon />
+          <span>3</span>
+        </ActionItem>
+      </ActionSection>
+
+      <CommentInputSection>
+        <CommentInputAvatar src="/path-to-avatar.jpg" />
+        <CommentInputWrapper>
+          <CommentInput placeholder="Écrire un commentaire..." />
+          <SendButton>
+            <SendIcon />
+          </SendButton>
+        </CommentInputWrapper>
+      </CommentInputSection>
+      <CommentsPopup 
+        open={commentsOpen}
+        onClose={handleCommentsClose}
       />
-
-      {/* Post Actions */}
-      <Box sx={{ p: 1, display: 'flex', gap: 2 }}>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <IconButton size="small">
-            <ThumbUpOutlinedIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>15</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <IconButton size="small">
-            <ChatBubbleOutlineIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>3</Typography>
-        </Box>
-        <Box sx={{ display: 'flex', alignItems: 'center', gap: 0.5 }}>
-          <IconButton size="small">
-            <BookmarkBorderIcon fontSize="small" />
-          </IconButton>
-          <Typography variant="caption" sx={{ fontSize: '0.75rem' }}>3</Typography>
-        </Box>
-      </Box>
-
-      {/* Comment Section */}
-      <Box sx={{ px: 1.5, pb: 1, pt: 0 }}>
-        <Box sx={{ display: 'flex', gap: 1, alignItems: 'center' }}>
-          <Avatar sx={{ width: 24, height: 24 }} />
-          <Box
-            sx={{
-              flex: 1,
-              display: 'flex',
-              gap: 0.5,
-              alignItems: 'center',
-              bgcolor: 'grey.100',
-              borderRadius: 3,
-              px: 1.5,
-              py: 0.25,
-            }}
-          >
-            <InputBase
-              placeholder="Écrire un commentaire..."
-              sx={{ flex: 1, fontSize: '0.875rem' }}
-            />
-            <Button
-              variant="contained"
-              size="small"
-              sx={{ 
-                minWidth: 0, 
-                p: 0.5, 
-                borderRadius: '50%',
-                width: 24,
-                height: 24
-              }}
-            >
-              <SendIcon sx={{ fontSize: '1rem' }} />
-            </Button>
-          </Box>
-        </Box>
-      </Box>
-    </Card>
+    </PostContainer>
   )
 }
 

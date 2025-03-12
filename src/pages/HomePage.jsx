@@ -1,14 +1,67 @@
-import { useState } from 'react'
-import { Box, Button, Stack } from '@mui/material'
+import { useState, useEffect } from 'react'
+import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import MainLayout from '../components/layout/MainLayout'
 import CreatePost from '../components/posts/CreatePost'
+import ProfilePageHeader from '../components/profile/ProfilePageHeader'
 import PostCard from '../components/posts/PostCard'
-import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import { useDarkMode } from '../context/DarkModeContext'
+import { useTheme } from '@mui/material/styles';
+import {
+  PageContainer,
+  SortContainer,
+  SortButton,
+  PostsStack,
+  SortMenu,
+  SortMenuItem
+} from './HomePage.styles'
 
 const HomePage = () => {
   const [sortBy, setSortBy] = useState('recent')
-  const { isDarkMode } = useDarkMode();
+  const [anchorEl, setAnchorEl] = useState(null)
+  const [activeView, setActiveView] = useState('home')
+  const { isDarkMode } = useDarkMode()
+  const theme = useTheme()
+  const backgroundColor = isDarkMode ? '#121212' : theme.palette.background.default
+  const open = Boolean(anchorEl)
+
+  // Listen for changes in nav item selection
+  useEffect(() => {
+    const handleNavChange = (event) => {
+      if (event.detail === 'profile') {
+        setActiveView('profile')
+      } else if (event.detail === 'home') {
+        setActiveView('home')
+      }
+    }
+    window.addEventListener('navItemChanged', handleNavChange)
+    return () => window.removeEventListener('navItemChanged', handleNavChange)
+  }, [])
+
+  const handleSortClick = (event) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleSortClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleSortChange = (newSort) => {
+    setSortBy(newSort)
+    handleSortClose()
+  }
+
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case 'recent':
+        return 'Récents'
+      case 'popular':
+        return 'Populaire'
+      case 'followed':
+        return 'Suivis'
+      default:
+        return 'Récents'
+    }
+  }
 
   const posts = [
     {
@@ -27,43 +80,68 @@ const HomePage = () => {
 
   return (
     <MainLayout>
-      <Box
-        sx={{
-          position: 'relative',
-          zIndex: 1,
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          width: '100%'
-        }}
-      >
-        <CreatePost />
+      <PageContainer style={{ backgroundColor }}>
+        {activeView === 'home' ? <CreatePost /> : <ProfilePageHeader />}
         
-        <Box sx={{ 
-          width: '100%', 
-          display: 'flex', 
-          justifyContent: 'flex-start',
-          mb: 2,
-          pl: '400px' 
+        <SortContainer style={{ 
+          backgroundColor,
+          '--gradient-color': backgroundColor
         }}>
-          <Button
+          <SortButton
             endIcon={<KeyboardArrowDownIcon />}
-            sx={{ 
-              color: isDarkMode ? '#FFFFFF' : 'text.secondary',
-              textTransform: 'none',
-              '&:hover': { bgcolor: 'transparent' }
+            isDarkMode={isDarkMode}
+            onClick={handleSortClick}
+            aria-controls={open ? 'sort-menu' : undefined}
+            aria-haspopup="true"
+            aria-expanded={open ? 'true' : undefined}
+          >
+            Trier par: {getSortLabel()}
+          </SortButton>
+
+          <SortMenu
+            id="sort-menu"
+            anchorEl={anchorEl}
+            open={open}
+            onClose={handleSortClose}
+            MenuListProps={{
+              'aria-labelledby': 'sort-button',
+            }}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
             }}
           >
-            Trier par: Récents
-          </Button>
-        </Box>
+            <SortMenuItem 
+              onClick={() => handleSortChange('recent')}
+              selected={sortBy === 'recent'}
+            >
+              Récents
+            </SortMenuItem>
+            <SortMenuItem 
+              onClick={() => handleSortChange('popular')}
+              selected={sortBy === 'popular'}
+            >
+              Populaire
+            </SortMenuItem>
+            <SortMenuItem 
+              onClick={() => handleSortChange('followed')}
+              selected={sortBy === 'followed'}
+            >
+              Suivis
+            </SortMenuItem>
+          </SortMenu>
+        </SortContainer>
 
-        <Stack spacing={2} sx={{ width: '100%' }}>
+        <PostsStack spacing={2}>
           {posts.map(post => (
             <PostCard key={post.id} post={post} />
           ))}
-        </Stack>
-      </Box>
+        </PostsStack>
+      </PageContainer>
     </MainLayout>
   )
 }

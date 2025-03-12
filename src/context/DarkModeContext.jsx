@@ -11,10 +11,7 @@ export const DarkModeProvider = ({ children }) => {
   useEffect(() => {
     localStorage.setItem('darkMode', JSON.stringify(isDarkMode));
     document.documentElement.setAttribute('data-theme', isDarkMode ? 'dark' : 'light');
-    
-    // Set background color on the root and body elements
-    document.documentElement.style.backgroundColor = isDarkMode ? '#121212' : '#FFFFFF';
-    document.body.style.backgroundColor = isDarkMode ? '#121212' : '#FFFFFF';
+
   }, [isDarkMode]);
 
   const toggleDarkMode = () => {
